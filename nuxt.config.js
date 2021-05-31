@@ -3,6 +3,7 @@ module.exports = {
     productionTip: false,
     devtools: true
   },
+
   router: {
     linkActiveClass: 'active'
   },

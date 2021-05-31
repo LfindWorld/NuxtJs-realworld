@@ -5,16 +5,20 @@
         <div class="row">
 
           <div class="col-xs-12 col-md-10 offset-md-1">
-            <img :src="user.image || staticImg" class="user-img" />
-            <h4>{{ user.username }}</h4>
+            <img :src="userInfo.image || staticImg" class="user-img" />
+            <h4>{{ userInfo.username }}</h4>
             <p>
-              {{ user.bio }}
+              {{ userInfo.bio }}
             </p>
-            <button class="btn btn-sm btn-outline-secondary action-btn">
+            <nuxt-link v-if="isMe" class="btn btn-sm btn-outline-secondary action-btn" to="/settings">
+              <i class="ion-gear-a"></i> Edit Profile Settings
+            </nuxt-link>
+            <button v-else @click="handlerFollow(userInfo.username)" class="btn btn-sm btn-outline-secondary action-btn">
               <i class="ion-plus-round"></i>
               &nbsp;
               Follow Eric Simons
             </button>
+
           </div>
 
         </div>
@@ -28,58 +32,47 @@
           <div class="articles-toggle">
             <ul class="nav nav-pills outline-active">
               <li class="nav-item">
-                <a class="nav-link active" href="">My Articles</a>
+                <a @click.prevent="changeTabs('myArticle')" :class="{
+                  active: currentType === 'myArticle'
+                }" class="nav-link ">My Articles</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="">Favorited Articles</a>
+                <a @click.prevent="changeTabs('favoritedArticles')" :class="{
+                  active: currentType === 'favoritedArticles'
+                }" class="nav-link ">Favorited Articles</a>
               </li>
             </ul>
           </div>
 
-          <div class="article-preview">
+          <div v-for="(item, index) in articlesList" :key="item.slug" class="article-preview">
             <div class="article-meta">
-              <a href=""><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
+              <a href=""><img :src="item.author.image" /></a>
               <div class="info">
-                <a href="" class="author">Eric Simons</a>
+                <a href="" class="author">{{item.author.username}}</a>
                 <span class="date">January 20th</span>
               </div>
-              <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                <i class="ion-heart"></i> 29
+              <button
+                class="btn btn-sm pull-xs-right"
+                :class="[item.favorited?'btn-primary':'btn-outline-primary']"
+                @click="handlerLike(item, index)"
+                :disabled="item.disabled"
+              >
+                <i class="ion-heart"></i>
+                {{item.favoritesCount}}
               </button>
             </div>
             <a href="" class="preview-link">
-              <h1>How to build webapps that scale</h1>
-              <p>This is the description for the post.</p>
+              <h1>{{ item.title }}</h1>
+              <p>{{ item.description }}</p>
               <span>Read more...</span>
             </a>
           </div>
-
-          <div class="article-preview">
-            <div class="article-meta">
-              <a href=""><img src="http://i.imgur.com/N4VcUeJ.jpg" /></a>
-              <div class="info">
-                <a href="" class="author">Albert Pai</a>
-                <span class="date">January 20th</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                <i class="ion-heart"></i> 32
-              </button>
-            </div>
-            <a href="" class="preview-link">
-              <h1>The song you won't ever stop singing. No matter how hard you try.</h1>
-              <p>This is the description for the post.</p>
-              <span>Read more...</span>
-              <ul class="tag-list">
-                <li class="tag-default tag-pill tag-outline">Music</li>
-                <li class="tag-default tag-pill tag-outline">Song</li>
-              </ul>
-            </a>
-          </div>
-
-
+          <template v-if="isLoading">
+            <p>loading articles</p>
+          </template>
         </div>
-
       </div>
+      <paging :pagingParams="pagingParams" @change="getArticlesData" :currentPage="currentPage"></paging>
     </div>
 
   </div>
@@ -88,16 +81,108 @@
 
 <script>
 import { mapState } from 'vuex'
-import { getProfile } from '@/api/profile'
+import { getProfile, followUser } from '@/api/profile'
+import { getArticle, like, UnLike } from '@/api/articles'
+import paging from '../components/paging'
 export default {
   name: 'profileIndex',
   middleware: 'authenticated',
-  async asyncData({ params }) {
-    const { data } = await getProfile('zhangsan666@qq.com')
-    console.log(data);
+  components: {
+    paging
+  },
+  async asyncData( { params, store } ) {
+    const state = store.state;
+    let isMe = false;
+    let userInfo = null;
+    const pagingParams =  {
+        limit: 1,
+        offset: 0,
+        total: 0
+      };
+    let selectName = params.username || state.user.username;
+    if (selectName === state.user.username) {
+      isMe = true;
+      userInfo = state.user
+    } else {
+      const { data } = await getProfile(selectName);
+      userInfo = data;
+    }
+
+    const { data: articleInfo } = await getArticle({
+      author: userInfo.username,
+      limit: pagingParams.limit,
+      offset: pagingParams.offset,
+    });
+    pagingParams.total = articleInfo.articlesCount;
+    const articlesList = articleInfo.articles;
+    articlesList.forEach(item => item.disabled = false)
+    return {
+      isMe,
+      userInfo,
+      articlesList,
+      pagingParams
+    }
   },
   computed: {
-    ...mapState(['user', 'staticImg'])
+    ...mapState([ 'staticImg'])
+  },
+  data () {
+    return {
+      currentType: 'myArticle', // myArticle favoritedArticles
+      isLoading: false,
+      currentPage: 1
+    }
+  },
+  methods: {
+    handlerFollow (username) {
+      console.log(username);
+      // await followUser(username)
+    },
+    async changeTabs (type) {
+      if (type === this.currentType) return;
+      this.currentType = type;
+      this.pagingParams = {
+        limit: 1,
+        offset: 0,
+        total: 0
+      };
+      this.getArticlesData();
+    },
+    async getArticlesData (event = {}) {
+      if (this.isLoading) return;
+      this.isLoading = true;
+      this.currentPage = event.pageIdx || 1;
+      this.pagingParams.offset = event.offset || 0;
+      const params = {
+        limit: this.pagingParams.limit,
+        offset: this.pagingParams.offset
+      }
+      if (this.currentType === 'myArticle') {
+        params.author = this.userInfo.username
+      } else {
+        params.favorited = this.userInfo.username
+      }
+
+      const { data } = await getArticle(params);
+      data.articles.forEach(item => item.disabled = false);
+      this.articlesList = data.articles
+      this.pagingParams.total = data.articlesCount;
+      this.isLoading = false;
+    },
+    async handlerLike (event, index) {
+      const { favorited, slug } = event;
+      const article = this.articlesList[index];
+      article.disabled = true;
+      if (favorited) {
+        await UnLike(slug);
+        article.favoritesCount -= 1
+      } else {
+        await like(slug);
+        article.favoritesCount += 1
+      }
+      article.favorited = !favorited;
+      article.disabled = false;
+    },
   }
 }
 </script>

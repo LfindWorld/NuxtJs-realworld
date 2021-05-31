@@ -86,10 +86,22 @@
 </template>
 
 <script>
-import { getAllArticle } from '@/api/articles'
+import { getArticle } from '@/api/articles'
 export default {
   async asyncData() {
-    await getAllArticle({})
+    // 分页参数
+    const pagingParams = {
+      limit: 20,
+      offest: 0,
+      total: 0
+    }
+    const { data } = await getArticle(pagingParams);
+    const articleList = data.article;
+    articleList.forEach(item => item.disabled = false)
+    return {
+      pagingParams,
+      articleList
+    }
   },
   components: {},
   data() {

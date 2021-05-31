@@ -68,6 +68,7 @@ export default {
           user: this.user
         })
         const { user } = data;
+        // 使用cookie 持久化登录状态
         this.$store.commit('setUser', user)
         Cookie.set('user', user)
         this.$router.push('/')

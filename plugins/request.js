@@ -5,11 +5,11 @@ export const request = axios.create({
 });
 
 export default ({ store }) => {
+  // 请求前置拦截
   request.interceptors.request.use(function (config) {
     const { user } = store.state
     if (user && user.token) {
-      console.log('这是token');
-      config.headers.Authorization = `Token ${user.token}`
+      config.headers.Authorization = `Token ${user.token}`;
     }
     return config;
 
