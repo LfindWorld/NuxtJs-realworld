@@ -1,6 +1,6 @@
 import { request } from '@/plugins/request'
 
-export const getArticle = params => {
+export const fetchArticle = params => {
   return request({
     method: 'GET',
     url: `/api/articles`,

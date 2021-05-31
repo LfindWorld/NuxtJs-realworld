@@ -44,35 +44,19 @@
             </ul>
           </div>
 
-          <div v-for="(item, index) in articlesList" :key="item.slug" class="article-preview">
-            <div class="article-meta">
-              <a href=""><img :src="item.author.image" /></a>
-              <div class="info">
-                <a href="" class="author">{{item.author.username}}</a>
-                <span class="date">January 20th</span>
-              </div>
-              <button
-                class="btn btn-sm pull-xs-right"
-                :class="[item.favorited?'btn-primary':'btn-outline-primary']"
-                @click="handlerLike(item, index)"
-                :disabled="item.disabled"
-              >
-                <i class="ion-heart"></i>
-                {{item.favoritesCount}}
-              </button>
-            </div>
-            <a href="" class="preview-link">
-              <h1>{{ item.title }}</h1>
-              <p>{{ item.description }}</p>
-              <span>Read more...</span>
-            </a>
+          <div>
+            <articleList :articles="articlesList"></articleList>
           </div>
           <template v-if="isLoading">
             <p>loading articles</p>
           </template>
         </div>
       </div>
-      <paging :pagingParams="pagingParams" @change="getArticlesData" :currentPage="currentPage"></paging>
+      <paging
+        :pagingParams="pagingParams"
+        @change="getArticlesData"
+        :currentPage="currentPage"
+      ></paging>
     </div>
 
   </div>
@@ -82,13 +66,25 @@
 <script>
 import { mapState } from 'vuex'
 import { getProfile, followUser } from '@/api/profile'
-import { getArticle, like, UnLike } from '@/api/articles'
+import { fetchArticle, like, UnLike } from '@/api/articles'
 import paging from '../components/paging'
+import articleList from '../components/article-list'
 export default {
   name: 'profileIndex',
   middleware: 'authenticated',
   components: {
-    paging
+    paging,
+    articleList
+  },
+  computed: {
+    ...mapState([ 'staticImg'])
+  },
+  data () {
+    return {
+      currentType: 'myArticle', // myArticle favoritedArticles
+      isLoading: false,
+      currentPage: 1
+    }
   },
   async asyncData( { params, store } ) {
     const state = store.state;
@@ -108,29 +104,20 @@ export default {
       userInfo = data;
     }
 
-    const { data: articleInfo } = await getArticle({
+    const { data: articleInfo } = await fetchArticle({
       author: userInfo.username,
       limit: pagingParams.limit,
       offset: pagingParams.offset,
     });
     pagingParams.total = articleInfo.articlesCount;
-    const articlesList = articleInfo.articles;
+    const articlesList = articleInfo.articles || [];
+    console.log(articlesList);
     articlesList.forEach(item => item.disabled = false)
     return {
       isMe,
       userInfo,
       articlesList,
       pagingParams
-    }
-  },
-  computed: {
-    ...mapState([ 'staticImg'])
-  },
-  data () {
-    return {
-      currentType: 'myArticle', // myArticle favoritedArticles
-      isLoading: false,
-      currentPage: 1
     }
   },
   methods: {
@@ -163,7 +150,7 @@ export default {
         params.favorited = this.userInfo.username
       }
 
-      const { data } = await getArticle(params);
+      const { data } = await fetchArticle(params);
       data.articles.forEach(item => item.disabled = false);
       this.articlesList = data.articles
       this.pagingParams.total = data.articlesCount;

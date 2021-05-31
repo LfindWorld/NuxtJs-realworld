@@ -22,43 +22,12 @@
               </li>
             </ul>
           </div>
-
-          <div class="article-preview">
-            <div class="article-meta">
-              <a href="profile.html"><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
-              <div class="info">
-                <a href="" class="author">Eric Simons</a>
-                <span class="date">January 20th</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                <i class="ion-heart"></i> 29
-              </button>
-            </div>
-            <a href="" class="preview-link">
-              <h1>How to build webapps that scale</h1>
-              <p>This is the description for the post.</p>
-              <span>Read more...</span>
-            </a>
-          </div>
-
-          <div class="article-preview">
-            <div class="article-meta">
-              <a href="profile.html"><img src="http://i.imgur.com/N4VcUeJ.jpg" /></a>
-              <div class="info">
-                <a href="" class="author">Albert Pai</a>
-                <span class="date">January 20th</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                <i class="ion-heart"></i> 32
-              </button>
-            </div>
-            <a href="" class="preview-link">
-              <h1>The song you won't ever stop singing. No matter how hard you try.</h1>
-              <p>This is the description for the post.</p>
-              <span>Read more...</span>
-            </a>
-          </div>
-
+          <articleList :articles="articleList"></articleList>
+          <paging
+            :pagingParams="pagingParams"
+            @change="getArticleList"
+            :currentPage="1"
+          ></paging>
         </div>
 
         <div class="col-md-3">
@@ -86,31 +55,45 @@
 </template>
 
 <script>
-import { getArticle } from '@/api/articles'
+import { fetchArticle } from '@/api/articles'
+import articleList from '@/pages/components/article-list'
+import paging from '@/pages/components/paging'
 export default {
+  components: {
+    paging,
+    articleList
+  },
   async asyncData() {
     // 分页参数
     const pagingParams = {
-      limit: 20,
+      limit: 10,
       offest: 0,
       total: 0
     }
-    const { data } = await getArticle(pagingParams);
-    const articleList = data.article;
+    const { data } = await fetchArticle({
+      limit: pagingParams.limit,
+      offest: pagingParams.offest,
+    });
+    const articleList = data.articles || [];
+    pagingParams.total = data.articlesCount;
     articleList.forEach(item => item.disabled = false)
     return {
       pagingParams,
       articleList
     }
   },
-  components: {},
   data() {
     return {};
   },
-  mounted() {
-    console.log('mounted');
-  },
-  methods: {}
+  methods: {
+    async getArticleList (params) {
+      const { data } = await fetchArticle(params);
+      const { articles, articlesCount } = data;
+      articles.forEach(item => item.disabled = false);
+      this.articleList = articles;
+      this.pagingParams.total = articlesCount;
+    }
+  }
 };
 </script>
 <style lang='scss' scoped>
