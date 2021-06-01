@@ -1,11 +1,26 @@
 <template>
-  <div>
+  <div v-if="articles.length">
     <div v-for="(item, index) in articles" :key="item.slug" class="article-preview">
         <div class="article-meta">
-          <a href=""><img :src="item.author.image" /></a>
+          <nuxt-link
+            :to="{
+              path: 'profile',
+              query: {
+                username: item.author.username
+              }
+            }"
+          ><img :src="item.author.image" /></nuxt-link>
           <div class="info">
-            <a href="" class="author">{{item.author.username}}</a>
-            <span class="date">January 20th</span>
+            <nuxt-link
+              :to="{
+                path: 'profile',
+                query: {
+                  username: item.author.username
+                }
+              }"
+              class="author"
+            >{{item.author.username}}</nuxt-link>
+            <span class="date">{{ item.createdAt | date('MMM DD, YYYY')}}</span>
           </div>
           <button
             class="btn btn-sm pull-xs-right"
@@ -17,11 +32,16 @@
             {{item.favoritesCount}}
           </button>
         </div>
-        <a href="" class="preview-link">
+        <nuxt-link :to="{
+          name: 'article',
+          params: {
+            slug: item.slug
+          }
+        }" class="preview-link">
           <h1>{{ item.title }}</h1>
           <p>{{ item.description }}</p>
           <span>Read more...</span>
-        </a>
+        </nuxt-link>
       </div>
   </div>
 </template>

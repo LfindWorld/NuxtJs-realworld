@@ -28,22 +28,26 @@ export default {
         return {
           limit: 0,
           offset: 0,
-          total: 0
         }
       }
     },
-    currentPage: Number
-
+    total: Number
   },
   computed: {
     pagdingNums() {
-      return Math.ceil(this.pagingParams.total / this.pagingParams.limit)
+      return Math.ceil(this.total / this.pagingParams.limit)
     },
+  },
+  data () {
+    return {
+      currentPage: 1
+    }
   },
   methods: {
     clickpaging(pageIdx) {
       if (this.currentPage === pageIdx) return;
-      this.$emit('change', {offset: (pageIdx - 1) * this.pagingParams.limit, pageIdx})
+      this.currentPage = pageIdx
+      this.$emit('change', {offset: (pageIdx - 1) * this.pagingParams.limit})
     }
   }
 }

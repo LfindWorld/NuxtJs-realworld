@@ -10,7 +10,7 @@
             </li>
           <template v-if="user">
             <li class="nav-item">
-              <nuxt-link class="nav-link" to="/article/edit" exact>
+              <nuxt-link class="nav-link" to="/eitor/edit" exact>
                 <i class="ion-compose"></i>&nbsp;New Post
               </nuxt-link>
             </li>
@@ -22,10 +22,10 @@
             <li class="nav-item">
               <nuxt-link class="nav-link" :to="{
                 name: 'profile',
-                params: {
+                query: {
                   username: user.username
                 }
-              }">
+              }" exact>
                 <img class="user-pic" :src="user.image">
                 {{user.username}}
               </nuxt-link>

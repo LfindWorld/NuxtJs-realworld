@@ -86,24 +86,24 @@ export default {
       currentPage: 1
     }
   },
-  async asyncData( { params, store } ) {
+  async asyncData( { query, store } ) {
     const state = store.state;
     let isMe = false;
     let userInfo = null;
     const pagingParams =  {
-        limit: 1,
+        limit: 10,
         offset: 0,
         total: 0
       };
-    let selectName = params.username || state.user.username;
+    const selectName = query.username;
+    if (!selectName) return;
     if (selectName === state.user.username) {
       isMe = true;
       userInfo = state.user
     } else {
       const { data } = await getProfile(selectName);
-      userInfo = data;
+      userInfo = data.profile;
     }
-
     const { data: articleInfo } = await fetchArticle({
       author: userInfo.username,
       limit: pagingParams.limit,
@@ -111,7 +111,6 @@ export default {
     });
     pagingParams.total = articleInfo.articlesCount;
     const articlesList = articleInfo.articles || [];
-    console.log(articlesList);
     articlesList.forEach(item => item.disabled = false)
     return {
       isMe,
@@ -129,7 +128,7 @@ export default {
       if (type === this.currentType) return;
       this.currentType = type;
       this.pagingParams = {
-        limit: 1,
+        limit: 10,
         offset: 0,
         total: 0
       };

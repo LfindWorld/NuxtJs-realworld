@@ -21,3 +21,18 @@ export const UnLike = slug => {
     url: `/api/articles/${slug}/favorite`,
   })
 }
+
+export const fetchFollowArticle = params => {
+  return request({
+    method: 'GET',
+    url: `/api/articles/feed`,
+    params
+  })
+}
+
+export const fetchTagsArticle = () => {
+  return request({
+    method: 'GET',
+    url: `/api/tags`,
+  })
+}
