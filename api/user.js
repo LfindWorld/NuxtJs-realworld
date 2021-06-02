@@ -15,3 +15,13 @@ export const register = data => {
     data
   })
 }
+
+export const fetchUpdateUser = data => {
+  return request({
+    method: 'PUT',
+    url: '/api/user',
+    data: {
+      user: data
+    }
+  })
+}

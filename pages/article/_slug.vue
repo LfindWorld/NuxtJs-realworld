@@ -3,7 +3,7 @@
     <div class="banner">
       <div class="container">
 
-        <h1>How to build webapps that scale</h1>
+        <h1>{{ article.title }}</h1>
 
         <div class="article-meta">
           <a href=""><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
@@ -31,11 +31,14 @@
 
       <div class="row article-content">
         <div class="col-md-12">
-          <p>
-          Web development technologies have evolved at an incredible clip over the past few years.
-          </p>
-          <h2 id="introducing-ionic">Introducing RealWorld.</h2>
-          <p>It's a great solution for learning how other frameworks work.</p>
+          <p>{{ article.description }}</p>
+          <p>{{ article.body}}</p>
+
+          <ul class="tag-list">
+            <li v-for="item in article.tagList" :key="item" class="tag-default tag-pill tag-outline">
+              {{item}}
+            </li>
+          </ul>
         </div>
       </div>
 
@@ -122,9 +125,18 @@
 </template>
 
 <script>
+import { fetchArticleInfo } from '@/api/articles'
 export default {
+  name: 'articleIndex',
   middleware: 'authenticated',
-
+  async asyncData({ params }) {
+    const { slug } = params;
+    const { data } = await fetchArticleInfo(slug);
+    const { article } = data;
+    return {
+      article
+    }
+  }
 }
 </script>
 

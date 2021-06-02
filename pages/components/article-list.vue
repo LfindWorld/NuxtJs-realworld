@@ -4,8 +4,8 @@
         <div class="article-meta">
           <nuxt-link
             :to="{
-              path: 'profile',
-              query: {
+              name: 'profile-username',
+              params: {
                 username: item.author.username
               }
             }"
@@ -13,14 +13,14 @@
           <div class="info">
             <nuxt-link
               :to="{
-                path: 'profile',
-                query: {
+                name: 'profile-username',
+                params: {
                   username: item.author.username
                 }
               }"
               class="author"
             >{{item.author.username}}</nuxt-link>
-            <span class="date">{{ item.createdAt | date('MMM DD, YYYY')}}</span>
+            <span class="date">{{ item.createdAt | date('MMM D, YYYY')}}</span>
           </div>
           <button
             class="btn btn-sm pull-xs-right"
@@ -33,7 +33,7 @@
           </button>
         </div>
         <nuxt-link :to="{
-          name: 'article',
+          name: 'article-slug',
           params: {
             slug: item.slug
           }
@@ -47,6 +47,8 @@
 </template>
 
 <script>
+import { fetchLike, fetchUnLike } from '@/api/articles'
+import { checkLogin } from '@/pages/utils/checklogin'
 export default {
   name: 'articleList',
   props: {
@@ -54,6 +56,25 @@ export default {
       type: Array,
       require: true
     }
+  },
+  methods: {
+    async handlerLike (event, index) {
+      if (!checkLogin()) {
+        return this.$router.push('/login/siginUp');
+      };
+      const { favorited, slug } = event;
+      const article = this.articles[index];
+      article.disabled = true;
+      if (favorited) {
+        await fetchUnLike(slug);
+        article.favoritesCount -= 1
+      } else {
+        await fetchLike(slug);
+        article.favoritesCount += 1
+      }
+      article.favorited = !favorited;
+      article.disabled = false;
+    },
   }
 }
 </script>

@@ -2,15 +2,14 @@
   <div class="layouts">
     <nav class="navbar navbar-light">
       <div class="container">
-        <!-- <a class="navbar-brand" href="/">conduit</a> -->
-        <nuxt-link class="navbar-brand" to="/" >conduit</nuxt-link>
+        <nuxt-link class="navbar-brand" to="/home" >conduit</nuxt-link>
         <ul class="nav navbar-nav pull-xs-right">
           <li class="nav-item">
-              <nuxt-link class="nav-link" to="/" exact>Home</nuxt-link>
+              <nuxt-link class="nav-link" to="/home" exact>Home</nuxt-link>
             </li>
           <template v-if="user">
             <li class="nav-item">
-              <nuxt-link class="nav-link" to="/eitor/edit" exact>
+              <nuxt-link class="nav-link" to="/eitor" exact>
                 <i class="ion-compose"></i>&nbsp;New Post
               </nuxt-link>
             </li>
@@ -21,8 +20,8 @@
             </li>
             <li class="nav-item">
               <nuxt-link class="nav-link" :to="{
-                name: 'profile',
-                query: {
+                name: 'profile-username',
+                params: {
                   username: user.username
                 }
               }" exact>
@@ -45,7 +44,7 @@
     <nuxt />
     <footer>
       <div class="container">
-        <a href="/" class="logo-font">conduit</a>
+        <nuxt-link class="logo-font" to="/home">conduit</nuxt-link>
         <span class="attribution">
           An interactive learning project from <a href="https://thinkster.io">Thinkster</a>. Code &amp; design licensed under MIT.
         </span>

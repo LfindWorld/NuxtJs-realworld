@@ -8,14 +8,14 @@ export const fetchArticle = params => {
   })
 }
 
-export const like = slug => {
+export const fetchLike = slug => {
   return request({
     method: 'POST',
     url: `/api/articles/${slug}/favorite`,
   })
 }
 
-export const UnLike = slug => {
+export const fetchUnLike = slug => {
   return request({
     method: 'DELETE',
     url: `/api/articles/${slug}/favorite`,
@@ -34,5 +34,20 @@ export const fetchTagsArticle = () => {
   return request({
     method: 'GET',
     url: `/api/tags`,
+  })
+}
+
+export const fetchArticleInfo = slug => {
+  return request({
+    method: 'GET',
+    url: `/api/articles/${slug}`,
+  })
+}
+
+export const fetchPublishArticle = params => {
+  return request({
+    method: 'POST',
+    url: `/api/articles`,
+    data: params
   })
 }

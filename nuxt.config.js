@@ -5,7 +5,8 @@ module.exports = {
   },
 
   router: {
-    linkActiveClass: 'active'
+    linkActiveClass: 'active',
+    middleware: 'home'
   },
   plugins: [
     '~/plugins/request.js',

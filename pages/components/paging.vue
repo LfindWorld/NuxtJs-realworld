@@ -1,7 +1,7 @@
 <template>
   <div>
     <nav>
-      <ul class="pagination">
+      <ul v-if="pagdingNums > 1" class="pagination">
         <li
           class="page-item"
           :class="{
