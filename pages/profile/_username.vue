@@ -13,7 +13,7 @@
             <nuxt-link v-if="user && user.username === userInfo.username" class="btn btn-sm btn-outline-secondary action-btn" to="/settings">
               <i class="ion-gear-a"></i> Edit Profile Settings
             </nuxt-link>
-            <button v-else @click="handlerFollow()" class="btn btn-sm btn-outline-secondary action-btn">
+            <button v-else @click="handlerFollow" class="btn btn-sm btn-outline-secondary action-btn">
               <i class="ion-plus-round"></i>
               &nbsp;
               {{userInfo.following ? 'Unfollow' : 'Follow'}} {{userInfo.username}}
