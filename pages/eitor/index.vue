@@ -50,7 +50,8 @@
 </template>
 
 <script>
-import { fetchPublishArticle } from '@/api/articles'
+import { fetchPublishArticle } from '@/api/articles';
+import markdownIt from 'markdown-it';
 export default {
   middleware: 'authenticated',
   data () {
@@ -68,6 +69,8 @@ export default {
   methods: {
     async handlerSubmit() {
       const params = { ...this.publishInfo };
+      const md = new markdownIt();
+      params.body = md.render(params.body);
       try {
         const { data } = await fetchPublishArticle(params);
         this.$router.push({

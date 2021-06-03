@@ -57,7 +57,10 @@ export default {
     }
   },
   mounted () {
-    this.isMe = this.authInfo.author.username === this.$store.state.user.username
+    if (this.$store.state.user) {
+      this.isMe = this.authInfo.author.username === this.$store.state.user.username
+    }
+
   },
   methods: {
     async handlerFollow () {

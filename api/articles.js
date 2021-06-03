@@ -51,3 +51,25 @@ export const fetchPublishArticle = params => {
     data: params
   })
 }
+
+export const fetchArticleComment = slug => {
+  return request({
+    method: 'GET',
+    url: `/api/articles/${slug}/comments`,
+  })
+}
+
+export const fetchArticlePublishComment = (slug, params) => {
+  return request({
+    method: 'POST',
+    url: `/api/articles/${slug}/comments`,
+    data: params
+  })
+}
+
+export const fetchArticleRemoveComment = (slug, commentId) => {
+  return request({
+    method: 'DELETE',
+    url: `/api/articles/${slug}/comments/${commentId}`,
+  })
+}
