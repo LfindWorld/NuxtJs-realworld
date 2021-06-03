@@ -3,7 +3,10 @@ module.exports = {
     productionTip: false,
     devtools: true
   },
-
+  server: {
+    host: '0.0.0.0',
+    port: 3000
+  },
   router: {
     linkActiveClass: 'active',
     middleware: 'home'
